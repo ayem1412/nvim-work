@@ -1,0 +1,9 @@
+# Formatting rules for THIS config's own Lua files.
+# conform.nvim picks this up automatically when you save a file in this repo.
+column_width = 120
+line_endings = "Unix"
+indent_type = "Spaces"
+indent_width = 2
+quote_style = "AutoPreferDouble"
+call_parentheses = "Always"
+collapse_simple_statement = "Never"

@@ -1,0 +1,10 @@
+# Machine-specific overrides — never commit (contains DB credentials, paths)
+lua/config/local.lua
+
+# Intelephense licence key
+intelephense_licence.txt
+
+# Editor/OS noise
+.DS_Store
+Thumbs.db
+*.swp

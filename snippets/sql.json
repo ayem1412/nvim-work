@@ -1,0 +1,19 @@
+{
+  "CTE": {
+    "prefix": "cte",
+    "body": [
+      "WITH ${1:name} AS (",
+      "\tSELECT $0",
+      ")",
+      "SELECT * FROM ${1:name};"
+    ],
+    "description": "Common table expression"
+  },
+  "Window function": {
+    "prefix": "win",
+    "body": [
+      "${1:ROW_NUMBER}() OVER (PARTITION BY ${2:col} ORDER BY ${3:col}) AS ${4:rn}"
+    ],
+    "description": "Window function"
+  }
+}

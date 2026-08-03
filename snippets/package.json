@@ -1,0 +1,12 @@
+{
+  "name": "my-snippets",
+  "version": "1.0.0",
+  "description": "Personal snippets, loaded by LuaSnip from <config>/snippets/",
+  "contributes": {
+    "snippets": [
+      { "language": "php", "path": "./php.json" },
+      { "language": "java", "path": "./java.json" },
+      { "language": "sql", "path": "./sql.json" }
+    ]
+  }
+}

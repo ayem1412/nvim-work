@@ -1,0 +1,47 @@
+{
+  "Spring REST controller": {
+    "prefix": "srest",
+    "body": [
+      "@RestController",
+      "@RequestMapping(\"/${1:path}\")",
+      "@RequiredArgsConstructor",
+      "public class ${2:Name}Controller {",
+      "",
+      "\t$0",
+      "}"
+    ],
+    "description": "Spring Boot REST controller"
+  },
+  "Spring service": {
+    "prefix": "ssvc",
+    "body": [
+      "@Service",
+      "@RequiredArgsConstructor",
+      "@Transactional(readOnly = true)",
+      "public class ${1:Name}Service {",
+      "",
+      "\t$0",
+      "}"
+    ],
+    "description": "Spring Boot service"
+  },
+  "JPA entity": {
+    "prefix": "sentity",
+    "body": [
+      "@Entity",
+      "@Table(name = \"${1:table_name}\")",
+      "@Getter",
+      "@Setter",
+      "@NoArgsConstructor",
+      "public class ${2:Name} {",
+      "",
+      "\t@Id",
+      "\t@GeneratedValue(strategy = GenerationType.IDENTITY)",
+      "\tprivate Long id;",
+      "",
+      "\t$0",
+      "}"
+    ],
+    "description": "JPA entity with Lombok"
+  }
+}

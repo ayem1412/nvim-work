@@ -1,0 +1,37 @@
+{
+  "Phalcon controller action": {
+    "prefix": "pact",
+    "body": [
+      "public function ${1:index}Action(${2})",
+      "{",
+      "\t$0",
+      "}"
+    ],
+    "description": "Phalcon controller action method"
+  },
+  "Phalcon model": {
+    "prefix": "pmodel",
+    "body": [
+      "use Phalcon\\\\Mvc\\\\Model;",
+      "",
+      "class ${1:Name} extends Model",
+      "{",
+      "\tpublic function initialize(): void",
+      "\t{",
+      "\t\t$this->setSource('${2:table}');",
+      "\t\t$0",
+      "\t}",
+      "}"
+    ],
+    "description": "Phalcon model class"
+  },
+  "Constructor property promotion": {
+    "prefix": "cpp",
+    "body": [
+      "public function __construct(",
+      "\tprivate readonly ${1:Type} \\$${2:name},",
+      ") {}"
+    ],
+    "description": "PHP 8 constructor property promotion"
+  }
+}
