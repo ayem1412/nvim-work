@@ -52,52 +52,45 @@ return {
         -- One entry per language you actually open. Installing all 200+ parsers
         -- wastes disk and update time.
         ensure_installed = {
-          -- Config / infra
           "lua",
           "luadoc",
           "vim",
           "vimdoc",
-          "query", -- treesitter's own query language (for :InspectTree)
+          "query",
           "regex",
           "bash",
           "json",
           "jsonc",
           "yaml",
           "toml",
-          "xml", -- pom.xml, Spring XML
+          "xml",
           "markdown",
           "markdown_inline",
           "dockerfile",
           "gitignore",
           "gitcommit",
           "diff",
-          -- Rust
           "rust",
-          -- Go
           "go",
           "gomod",
           "gosum",
           "gowork",
           "gotmpl",
-          -- Web
           "html",
           "css",
           "scss",
           "javascript",
           "jsdoc",
           "typescript",
-          "tsx", -- React
+          "tsx",
           "vue",
-          "twig", -- Twig / Volt templates
+          "twig",
           "graphql",
-          -- PHP
           "php",
-          "php_only", -- required by the `php` parser for pure-PHP files
+          "php_only",
           "phpdoc",
-          -- Java
           "java",
-          "properties", -- application.properties
-          -- SQL
+          "properties",
           "sql",
         },
 
