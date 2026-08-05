@@ -279,13 +279,13 @@ local config = {
     map("<leader>jv", jdtls.extract_variable, "Extract variable")
     map("<leader>jc", jdtls.extract_constant, "Extract constant")
     vmap("<leader>jv", function()
-      jdtls.extract_variable(true)
+      jdtls.extract_variable()
     end, "Extract variable (selection)")
     vmap("<leader>jc", function()
-      jdtls.extract_constant(true)
+      jdtls.extract_constant()
     end, "Extract constant (selection)")
     vmap("<leader>jm", function()
-      jdtls.extract_method(true)
+      jdtls.extract_method()
     end, "Extract method (selection)")
 
     -- Jump between Foo.java and FooTest.java.

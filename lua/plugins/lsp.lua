@@ -231,6 +231,8 @@ return {
             vim.cmd("LspRestart " .. client.name)
           end, "Restart this server")
 
+          map("n", "<leader>dm", vim.diagnostic.open_float, "Open diagnostics")
+
           -- ── Inlay hints ──────────────────────────────────────────────────
           -- Off by default: they are excellent for reading Rust/Go/TS and
           -- distracting while typing. <leader>uh toggles (see keymaps.lua).
