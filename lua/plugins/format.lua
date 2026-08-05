@@ -204,9 +204,14 @@ return {
       local lint = require("lint")
 
       lint.linters_by_ft = {
-        -- PHP static analysis. phpstan needs a phpstan.neon in the project;
-        -- without one it errors, so it is guarded in the autocmd below.
-        php = { "phpstan" },
+        -- PHP: two linters, each gated so they only run when they can.
+        --   "php"     -> `php -l` syntax check. Runs on ANY PHP version
+        --                (including your PHP 5), needs no config. Always useful.
+        --   "phpstan" -> static analysis. Auto-skips unless the `php` on PATH
+        --                is >= 7.4 (phpstan's minimum) AND the project has a
+        --                phpstan config. On PHP 5 it stays dormant; the day you
+        --                install a 7.4+ CLI it activates itself, no edit needed.
+        php = { "php", "phpstan" },
         -- Go: golangci-lint aggregates ~50 linters. gopls already reports
         -- vet-level issues, so this adds the stricter/style checks.
         go = { "golangcilint" },
@@ -216,6 +221,76 @@ return {
         twig = { "djlint" },
         -- Containers.
         dockerfile = { "hadolint" },
+      }
+
+      -- ── Project-config gating ───────────────────────────────────────────
+      -- Some linters are meaningless (and error out) without a project config.
+      -- A linter listed here only runs when one of its marker files is found
+      -- by searching upward from the current file. This is what stops phpstan
+      -- firing on a project that hasn't set it up.
+      local lint_requires = {
+        phpstan = { "phpstan.neon", "phpstan.neon.dist", "phpstan.dist.neon" },
+        golangcilint = { ".golangci.yml", ".golangci.yaml", ".golangci.toml", ".golangci.json" },
+      }
+
+      -- Point phpstan at the analyse subcommand with JSON error output when it
+      -- does run, so nvim-lint can parse the result cleanly. --memory-limit
+      -- avoids an out-of-memory abort mid-run that would corrupt the JSON.
+      lint.linters.phpstan.args = {
+        "analyse",
+        "--error-format=json",
+        "--no-progress",
+        "--memory-limit=1G",
+      }
+
+      -- ── Runtime prerequisite gating ─────────────────────────────────────
+      -- Beyond a config file, some linters need a working-enough runtime.
+      -- Map: linter name -> function returning true if it can actually run.
+      -- The result is cached so we don't shell out on every keystroke, and the
+      -- cache is per PATH so it adapts if you change your PHP without needing a
+      -- config edit — worst case, restart Neovim after swapping PHP versions.
+      local runtime_cache = {}
+      local function php_version_id()
+        -- Cache keyed on the resolved php path, so switching WAMP PHP versions
+        -- (which changes exepath) re-checks instead of using a stale answer.
+        local php_path = vim.fn.exepath("php")
+        if php_path == "" then
+          return nil
+        end
+        if runtime_cache[php_path] ~= nil then
+          return runtime_cache[php_path]
+        end
+        -- PHP_VERSION_ID is an int like 50640 (5.6.40) or 80230 (8.2.30).
+        local out = vim.fn.system({ "php", "-r", "echo PHP_VERSION_ID;" })
+        local id = tonumber((out or ""):match("%d+"))
+        runtime_cache[php_path] = id or false
+        return runtime_cache[php_path]
+      end
+
+      local warned_php_old = false
+      local lint_runtime_gate = {
+        phpstan = function()
+          local id = php_version_id()
+          if not id then
+            return false -- no php on PATH; nothing to run
+          end
+          if id >= 70400 then
+            return true -- PHP 7.4+ : phpstan can run
+          end
+          -- Too old. Warn once so it's clear WHY phpstan is quiet, then stay
+          -- silent — this is expected on a PHP 5 machine, not an error.
+          if not warned_php_old then
+            warned_php_old = true
+            vim.schedule(function()
+              vim.notify(
+                "phpstan skipped: the `php` on PATH is < 7.4, so phpstan can't run.\n"
+                  .. "php -l syntax checking is still active. Point PATH at a 7.4+ PHP to enable phpstan.",
+                vim.log.levels.INFO
+              )
+            end)
+          end
+          return false
+        end,
       }
 
       -- ── sqlfluff dialect ────────────────────────────────────────────────
@@ -243,8 +318,27 @@ return {
             -- Skip linters whose executable is missing on this machine instead
             -- of erroring — the two machines will not always be identical.
             local names = lint.linters_by_ft[vim.bo.filetype] or {}
+            local buf_dir = vim.fs.dirname(vim.api.nvim_buf_get_name(0))
             local runnable = vim.tbl_filter(function(name)
+              -- Gate 1: project config file present?
+              local markers = lint_requires[name]
+              if markers then
+                local found = vim.fs.find(markers, { upward = true, path = buf_dir })[1]
+                if not found then
+                  return false
+                end
+              end
+              -- Gate 2: runtime OK? (e.g. phpstan only runs on PHP 7.4+)
+              local gate = lint_runtime_gate[name]
+              if gate and not gate() then
+                return false
+              end
               local linter = lint.linters[name]
+              -- `linter.cmd` may be a string OR a function: some linters
+              -- (phpstan, sqlfluff) resolve their path at runtime via a
+              -- function, and vim.fn.executable() errors on a non-string.
+              -- Only pre-check when it's a plain string; otherwise assume it's
+              -- runnable and let nvim-lint handle a missing binary itself.
               local cmd = type(linter) == "table" and linter.cmd or nil
               if type(cmd) ~= "string" then
                 return true
