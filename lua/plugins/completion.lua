@@ -88,14 +88,14 @@ return {
         preset = "default",
         ["<C-y>"] = { "select_and_accept" },
         ["<CR>"] = { "accept", "fallback" },
+        ["<C-n>"] = { "show", "select_next", "fallback" },
         ["<C-j>"] = { "snippet_forward", "fallback" },
         ["<C-k>"] = { "snippet_backward", "fallback" },
-        ["<Tab>"] = { "select_next", "fallback" },
-        ["<S-Tab>"] = { "select_prev", "fallback" },
+        ["<Tab>"] = { "show", "select_next", "snippet_forward", "fallback" },
+        ["<S-Tab>"] = { "select_prev", "snippet_backward", "fallback" },
         ["<C-b>"] = { "scroll_documentation_up", "fallback" },
         ["<C-f>"] = { "scroll_documentation_down", "fallback" },
       },
-
       appearance = {
         -- "mono" if your nerd font is the Nerd Font Mono variant (icons are
         -- single-width). Use "normal" if icons look cut off / overlapped.
@@ -202,7 +202,7 @@ return {
       -- Completion on the `:` command line too (files, commands, options).
       cmdline = {
         enabled = true,
-        completion = { menu = { auto_show = true } },
+        completion = { menu = { auto_show = true }, list = { selection = { preselect = false, auto_insert = true } } },
       },
     },
     -- Merge `sources.providers` etc. rather than replacing the whole table if
