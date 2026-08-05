@@ -246,7 +246,10 @@ return {
             local runnable = vim.tbl_filter(function(name)
               local linter = lint.linters[name]
               local cmd = type(linter) == "table" and linter.cmd or nil
-              return cmd == nil or vim.fn.executable(cmd) == 1 or vim.fn.executable(vim.fn.exepath(cmd)) == 1
+              if type(cmd) ~= "string" then
+                return true
+              end
+              return vim.fn.executable(cmd) == 1 or vim.fn.executable(vim.fn.exepath(cmd)) == 1
             end, names)
             if #runnable > 0 then
               lint.try_lint(runnable)
