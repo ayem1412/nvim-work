@@ -29,7 +29,6 @@ return {
     -- here just makes lazy.nvim install it and put it on the runtimepath
     -- before the first Java buffer opens.
   },
-
   -- ══════════════════════════════════════════════════════════════════════════
   --  spring-boot.nvim  —  the Spring Boot language server (STS4) for Neovim
   -- ══════════════════════════════════════════════════════════════════════════
