@@ -88,14 +88,38 @@ return {
         preset = "default",
         ["<C-y>"] = { "select_and_accept" },
         ["<CR>"] = { "accept", "fallback" },
+        -- Show the completion menu (and toggle docs). Matches blink's documented
+        -- binding exactly.
+        -- HEADS UP: many terminals — Windows Terminal in particular — intercept
+        -- Ctrl+Space and never pass it to Neovim, so this can silently do
+        -- nothing through no fault of the config. Test with `i` then
+        -- <C-v><C-Space>: if nothing shows, the terminal ate it. In that case
+        -- use <C-n> below (works everywhere) or rebind Ctrl+Space in your
+        -- terminal's settings.
+        ["<C-space>"] = { "show", "show_documentation", "hide_documentation" },
+        -- Terminal-proof alternative to open/advance the menu.
         ["<C-n>"] = { "show", "select_next", "fallback" },
-        ["<C-j>"] = { "snippet_forward", "fallback" },
-        ["<C-k>"] = { "snippet_backward", "fallback" },
-        ["<Tab>"] = { "show", "select_next", "snippet_forward", "fallback" },
+        -- Tab: cycle the completion menu if it's open, else jump snippet
+        -- placeholders, else fall back to a literal Tab (indent). blink tries
+        -- each action in order and uses the first that applies.
+        -- Tab: open the menu (with nothing selected) on the first press if it
+        -- isn't showing, then select item 1; subsequent presses walk down.
+        -- `show` is a no-op when the menu is already open, so it falls through
+        -- to select_next. This gives "nothing selected until I Tab" because
+        -- preselect/auto_insert are false in completion.list below.
+        -- Tab: cycle the menu ONLY if it's already open (blink auto-shows it as
+        -- you type, via trigger.show_on_keyword below — Tab doesn't force it
+        -- open). Otherwise jump a snippet placeholder, otherwise plain Tab
+        -- (indent). This is what keeps Tab usable for indentation on an empty
+        -- line or a fresh block instead of always popping the menu.
+        ["<Tab>"] = { "select_next", "snippet_forward", "fallback" },
         ["<S-Tab>"] = { "select_prev", "snippet_backward", "fallback" },
+        ["<C-j>"] = { "select_next", "fallback" },
+        ["<C-k>"] = { "select_prev", "fallback" },
         ["<C-b>"] = { "scroll_documentation_up", "fallback" },
         ["<C-f>"] = { "scroll_documentation_down", "fallback" },
       },
+
       appearance = {
         -- "mono" if your nerd font is the Nerd Font Mono variant (icons are
         -- single-width). Use "normal" if icons look cut off / overlapped.
@@ -122,8 +146,10 @@ return {
           window = { border = "rounded" },
         },
         ghost_text = {
-          -- Inline preview of the selected item. Turn off if it fights with
-          -- Copilot's own ghost text.
+          -- OFF: the inline faint preview of the first item looks like a
+          -- preselection even though nothing is actually selected. With
+          -- preselect=false below, turning this off means the menu opens with
+          -- genuinely nothing highlighted until you press Tab.
           enabled = true,
         },
         list = {
@@ -202,7 +228,17 @@ return {
       -- Completion on the `:` command line too (files, commands, options).
       cmdline = {
         enabled = true,
-        completion = { menu = { auto_show = true }, list = { selection = { preselect = false, auto_insert = true } } },
+        completion = {
+          menu = { auto_show = true },
+          -- The cmdline has its OWN selection defaults (preselect=true,
+          -- auto_insert=true) — it does NOT inherit the top-level list.selection
+          -- above. That default is what auto-highlights the first item the
+          -- moment you type `:`, and can commit it when you press Enter to run
+          -- the command. Turn both off so nothing is selected until you Tab.
+          list = {
+            selection = { preselect = false, auto_insert = true },
+          },
+        },
       },
     },
     -- Merge `sources.providers` etc. rather than replacing the whole table if
