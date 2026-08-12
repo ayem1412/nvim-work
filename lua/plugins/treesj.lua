@@ -29,8 +29,6 @@ return {
   -- Lazy-load only when one of the keymaps is pressed.
   keys = { "<space>m", "<space>j", "<space>s" },
   opts = {
-    -- We bind our own keys above; don't also register <space>m/j/s.
-    use_default_keymaps = false,
     -- Don't reformat a node that contains a syntax error — the result would be
     -- garbage. Better to no-op and let you fix the error first.
     check_syntax_error = true,
