@@ -38,6 +38,16 @@ local vue_plugin = {
   location = vue_language_server_path,
   languages = { "vue" },
   configNamespace = "typescript",
+  -- REQUIRED for a Mason-installed plugin. vtsls's own README calls this out:
+  -- a TypeScript plugin that lives OUTSIDE the current project's node_modules
+  -- (which is exactly where Mason puts it) can silently fail to activate
+  -- without this flag. When that happens tsserver falls back to parsing the
+  -- whole .vue file — including <template> — as plain TypeScript, producing a
+  -- cascade of "Cannot find name 'span'", "'{' expected" errors, because it
+  -- has no idea the file has Vue SFC structure at all. This is a documented,
+  -- known failure mode, not a one-off:
+  -- https://github.com/yioneko/vtsls#typescript-plugin-not-activated
+  enableForWorkspaceTypeScriptVersions = true,
 }
 
 return {
